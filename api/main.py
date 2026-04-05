@@ -4,10 +4,13 @@ from routes.algoritmos import router as algoritmos_router
 
 app = FastAPI(title="Applied NLP Engine", version="0.0.1")
 
+origins = [
+    "http://localhost:3000",
+]
 # Configuración de CORS (Vital para que tu frontend se comunique)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # En producción cambias "*" por la URL de tu frontend (ej. "http://localhost:3000")
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
