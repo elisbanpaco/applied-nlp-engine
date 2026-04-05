@@ -1,13 +1,21 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from routes.algoritmos import router as algoritmos_router
 
-app = FastAPI()
+app = FastAPI(title="Applied NLP Engine", version="0.0.1")
 
+# Configuración de CORS (Vital para que tu frontend se comunique)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # En producción cambias "*" por la URL de tu frontend (ej. "http://localhost:3000")
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+app.include_router(algoritmos_router, prefix="/api/v1/algoritmos", tags=["algoritmos"])
 
 @app.get("/")
 def read_root():
-    return {"Hello": "World"}
-
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: str | None = None):
-    return {"item_id": item_id, "q": q}
+    return {"status": "API funcionando correctamente"}
