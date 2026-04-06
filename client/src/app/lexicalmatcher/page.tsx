@@ -3,6 +3,22 @@
 import { useState } from "react";
 import { Zap, Timer, Download, Loader2 } from "lucide-react";
 
+interface CosineResponse {
+  message: string;
+  similarity: number;
+  palabrasA: string[];
+  palabrasB: string[];
+  textoA: string;
+  textoB: string;
+}
+
+interface JaccardResponse {
+  message: string;
+  similarity: number;
+  conjuntoA: string[];
+  conjuntoB: string[];
+}
+
 interface AlgorithmResult {
   type: string;
   value: number;
@@ -60,19 +76,15 @@ export default function LexicalMatcher() {
         const errorData = await jaccardRes.json();
         throw new Error(errorData.detail?.[0]?.msg || "Failed to calculate Jaccard similarity");
       }
-      const jaccardData = await jaccardRes.json();
-      jaccardValue = jaccardData.similarity !== undefined 
-        ? parseFloat(jaccardData.similarity) 
-        : parseFloat(jaccardData);
+      const jaccardData: JaccardResponse = await jaccardRes.json();
+      jaccardValue = jaccardData.similarity;
 
       if (!cosineRes.ok) {
         const errorData = await cosineRes.json();
         throw new Error(errorData.detail?.[0]?.msg || "Failed to calculate Cosine similarity");
       }
-      const cosineData = await cosineRes.json();
-      cosineValue = cosineData.similarity !== undefined 
-        ? parseFloat(cosineData.similarity) 
-        : parseFloat(cosineData);
+      const cosineData: CosineResponse = await cosineRes.json();
+      cosineValue = cosineData.similarity;
 
       const combinedResult: ApiResponse = {
         computation_id: crypto.randomUUID(),
