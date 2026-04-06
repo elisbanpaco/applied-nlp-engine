@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Zap, Timer, Download, Loader2 } from "lucide-react";
 
 interface AlgorithmResult {
   type: string;
@@ -212,9 +213,7 @@ export default function LexicalMatcher() {
               className="group relative flex items-center justify-center gap-3 px-12 py-4 bg-white text-black font-bold rounded-sm overflow-hidden transition-all hover:shadow-[0_0_30px_rgba(255,255,255,0.1)] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <span className="relative z-10 flex items-center gap-3 uppercase tracking-tighter">
-                <span className="material-symbols-outlined text-lg">
-                  {loading ? "hourglass_empty" : "bolt"}
-                </span>
+                {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Zap className="h-5 w-5" />}
                 {loading ? "Computing..." : "Run Computation"}
               </span>
               <div className="absolute inset-0 bg-gradient-to-r from-white via-neutral-300 to-white opacity-20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
@@ -225,9 +224,7 @@ export default function LexicalMatcher() {
                 GPU Accelerated
               </span>
               <span className="flex items-center gap-1.5 text-[10px] font-mono text-neutral-500">
-                <span className="material-symbols-outlined text-[12px]">
-                  timer
-                </span>
+                <Timer className="w-3 h-3" />
                 ~12ms latency
               </span>
             </div>
@@ -313,9 +310,7 @@ export default function LexicalMatcher() {
                         }}
                         className="text-neutral-500 hover:text-white"
                       >
-                        <span className="material-symbols-outlined text-sm">
-                          download
-                        </span>
+                        <Download className="w-4 h-4" />
                       </button>
                     </div>
                     <div className="p-6 font-mono text-xs leading-relaxed text-blue-200/80 overflow-x-auto">
