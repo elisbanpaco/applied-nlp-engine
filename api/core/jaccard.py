@@ -41,7 +41,13 @@ def similitud_jaccard(conjunto1, conjunto2):
 def jaccard(textoA, textoB):
     conjuntoA = set_limpio(textoA)
     conjuntoB = set_limpio(textoB)
-    return similitud_jaccard(conjuntoA, conjuntoB)
+
+    similarity = similitud_jaccard(conjuntoA, conjuntoB)
+    return (
+        similarity,
+        conjuntoA,
+        conjuntoB
+    )
 
 
 
