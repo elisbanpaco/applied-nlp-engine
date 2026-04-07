@@ -13,27 +13,44 @@ def obtener_vector_promedio(texto):
     # SpaCy lee el texto y lo separa en palabras (tokens)
     doc = nlp(texto)
     vectores_validos = []
+    palabras_limpias = []
     
     print(f"\nAnalizando: '{texto}'")
     for palabra in doc:
         # Filtramos las Stopwords ("el", "es", "muy") y la puntuación
+
         if not palabra.is_stop and not palabra.is_punct:
+        
             # palabra.vector es el array de 300 números de esa palabra
             vectores_validos.append(palabra.vector)
             print("\nvector: ", palabra.vector)
             print(f" - Palabra clave retenida: '{palabra.text}'")
+            palabras_limpias.append(palabra.text)
             
     if len(vectores_validos) == 0:
-        return np.zeros(300)
+        return np.zeros(300), []
     # Calculamos el promedio de todas las palabras válidas (centro de gravedad)
     # axis=0 significa que suma columna por columna y divide entre el total
     vector_promedio = np.mean(vectores_validos, axis=0)
-    return vector_promedio
+    return (vector_promedio, palabras_limpias)
 
 def distance_cosine(textoA, textoB):
-    vectorA = obtener_vector_promedio(textoA)
-    vectorB = obtener_vector_promedio(textoB)
-    return np.dot(vectorA, vectorB) / (np.linalg.norm(vectorA) * np.linalg.norm(vectorB))
+    vectorA, palabrasA = obtener_vector_promedio(textoA)
+    vectorB, palabrasB = obtener_vector_promedio(textoB)
+    # evitamos la división por cero
+    if np.linalg.norm(vectorA) == 0 or np.linalg.norm(vectorB) == 0:
+        similarity = 0.0
+    else:
+        similarity = np.dot(vectorA, vectorB) / (np.linalg.norm(vectorA) * np.linalg.norm(vectorB))
+    return (
+        similarity,
+        palabrasA,
+        palabrasB,
+        # vectorA,
+        # vectorB,
+        textoA,
+        textoB
+    )
 
 
 
