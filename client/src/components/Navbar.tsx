@@ -19,6 +19,13 @@ export function Navbar() {
           >
             Lexical Matcher
           </Link>
+
+          <Link
+            className="text-neutral-500 hover:text-neutral-200 transition-colors font-mono text-xs uppercase tracking-widest"
+            href="/dendrograma"
+          >
+            Dendrograma
+          </Link>
           <Link
             className="text-neutral-500 hover:text-neutral-200 transition-colors font-mono text-xs uppercase tracking-widest"
             href="#"
