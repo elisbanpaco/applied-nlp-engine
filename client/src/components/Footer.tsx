@@ -7,7 +7,7 @@ export function Footer() {
             ARCHITECT.IO
           </div>
           <p className="font-mono text-xs uppercase tracking-widest text-neutral-400">
-            © 2024 ARCHITECT.IO — PRECISION BRUTALISM
+            © 2025 ARCHITECT.IO — EPADEV
           </p>
         </div>
         <div className="flex flex-wrap justify-center gap-8">
@@ -22,18 +22,6 @@ export function Footer() {
               </a>
             ),
           )}
-        </div>
-        <div className="mt-8 md:mt-0 flex gap-4">
-          {["code", "terminal"].map((icon) => (
-            <button
-              key={icon}
-              className="w-10 h-10 border border-neutral-800 flex items-center justify-center hover:bg-white/5 transition-colors"
-            >
-              <span className="material-symbols-outlined text-neutral-400 text-sm">
-                {icon}
-              </span>
-            </button>
-          ))}
         </div>
       </div>
     </footer>
