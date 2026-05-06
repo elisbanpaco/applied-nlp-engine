@@ -1,5 +1,20 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+
 export function Navbar() {
+  const pathname = usePathname();
+
+  const getLinkStyle = (path: string) => {
+    const baseStyle = "font-mono text-xs uppercase tracking-widest";
+    const activeStyle = "text-white font-medium border-b border-white pb-1";
+    const inactiveStyle =
+      "text-neutral-500 hover:text-neutral-200 transition-colors";
+
+    return `${baseStyle} ${pathname === path ? activeStyle : inactiveStyle}`;
+  };
+
   return (
     <header className="fixed top-0 w-full z-50 bg-neutral-950/80 backdrop-blur-xl">
       <nav className="flex justify-between items-center max-w-7xl mx-auto px-6 h-16">
@@ -7,23 +22,18 @@ export function Navbar() {
           ARCHITECT.IO
         </div>
         <div className="hidden md:flex items-center space-x-8">
-          <Link
-            className="text-white font-medium border-b border-white pb-1 font-mono text-xs uppercase tracking-widest"
-            href="/"
-          >
+          <Link className={getLinkStyle("/")} href="/">
             Docs
           </Link>
+
           <Link
-            className="text-neutral-500 hover:text-neutral-200 transition-colors font-mono text-xs uppercase tracking-widest"
+            className={getLinkStyle("/lexicalmatcher")}
             href="/lexicalmatcher"
           >
             Lexical Matcher
           </Link>
 
-          <Link
-            className="text-neutral-500 hover:text-neutral-200 transition-colors font-mono text-xs uppercase tracking-widest"
-            href="/dendrograma"
-          >
+          <Link className={getLinkStyle("/dendrograma")} href="/dendrograma">
             Dendrograma
           </Link>
         </div>
