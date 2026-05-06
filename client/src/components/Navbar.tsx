@@ -26,24 +26,6 @@ export function Navbar() {
           >
             Dendrograma
           </Link>
-          <Link
-            className="text-neutral-500 hover:text-neutral-200 transition-colors font-mono text-xs uppercase tracking-widest"
-            href="#"
-          >
-            Registry
-          </Link>
-          <Link
-            className="text-neutral-500 hover:text-neutral-200 transition-colors font-mono text-xs uppercase tracking-widest"
-            href="#"
-          >
-            CLI
-          </Link>
-          <Link
-            className="text-neutral-500 hover:text-neutral-200 transition-colors font-mono text-xs uppercase tracking-widest"
-            href="#"
-          >
-            Pricing
-          </Link>
         </div>
         <div className="flex items-center space-x-4">
           <button className="p-2 text-white hover:bg-white/5 transition-all duration-200">
