@@ -103,8 +103,10 @@ export default function DendrogramPage() {
     icoord.forEach((xcoords, idx) => {
       traces.push({
         type: 'scatter',
-        x: xcoords,
-        y: dcoord[idx],
+        // x: xcoords,
+        // y: dcoord[idx],
+        x: dcoord[idx],
+        y: xcoords,
         mode: 'lines',
         line: {
           color: '#000000',
@@ -118,12 +120,16 @@ export default function DendrogramPage() {
     // Agregar etiquetas en el eje X
     const labelTrace = {
       type: 'scatter',
-      x: labelCoords.map(l => l.x),
-      y: Array(labelCoords.length).fill(0),
+      // x: labelCoords.map(l => l.x),
+      // y: Array(labelCoords.length).fill(0),
+      x: Array(labelCoords.length).fill(0),
+      y: labelCoords.map(l => l.x),
       mode: 'text',
       text: labelCoords.map(l => l.label),
-      textposition: 'bottom',
-      textangle: -90,
+      // textposition: 'bottom',
+      // textangle: -90,
+      textposition: 'middle left',
+      textangle: 0,
       textfont: {
         size: 10,
         family: 'Arial, sans-serif',
@@ -146,7 +152,7 @@ export default function DendrogramPage() {
         setLoading(true);
         
         // REEMPLAZA ESTA URL CON TU ENDPOINT DE FASTAPI
-        const response = await fetch('http://localhost:8000/api/v1/clustering/dendrograma-local');
+        const response = await fetch('http://localhost:8000/api/v1/clustering/distancia-coseno');
         if (!response.ok) throw new Error('Error al obtener datos');
         const jsonData = await response.json();
         setData(jsonData);
@@ -215,7 +221,7 @@ export default function DendrogramPage() {
               Comentarios Únicos Válidos
             </p>
             <p className="text-3xl font-bold text-blue-900">
-              {data.metadata.comentarios_unicos_validos.toLocaleString()}
+              {data?.metadata?.comentarios_unicos_validos?.toLocaleString()}
             </p>
           </div>
           <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-5 shadow-sm">
@@ -223,7 +229,7 @@ export default function DendrogramPage() {
               Comentarios Vectorizados
             </p>
             <p className="text-3xl font-bold text-purple-900">
-              {data.metadata.comentarios_vectorizados.toLocaleString()}
+              {data?.metadata?.comentarios_vectorizados?.toLocaleString()}
             </p>
           </div>
           <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-xl p-5 shadow-sm">
@@ -231,7 +237,7 @@ export default function DendrogramPage() {
               Nodos Hoja
             </p>
             <p className="text-3xl font-bold text-green-900">
-              {data.metadata.nodos_hoja_dendrograma}
+              {data?.metadata.nodos_hoja_dendrograma}
             </p>
           </div>
         </div>
@@ -266,27 +272,46 @@ export default function DendrogramPage() {
                 autosize: true,
                 height: 800,
                 margin: {
-                  l: 60,
+                  // l: 60,
+                  l: 250,
                   r: 40,
                   t: 80,
-                  b: 250
+                  // b: 250
+                  b: 60
                 },
-                xaxis: {
-                  showticklabels: false,
-                  showgrid: false,
-                  zeroline: false,
-                  showline: true,
-                  linecolor: '#000000',
-                  linewidth: 1.5,
-                  ticks: ''
-                },
-                yaxis: {
+                // xaxis: {
+                //   showticklabels: false,
+                //   showgrid: false,
+                //   zeroline: false,
+                //   showline: true,
+                //   linecolor: '#000000',
+                //   linewidth: 1.5,
+                //   ticks: ''
+                // },
+                // yaxis: {
+                //   title: {
+                //     text: 'Distancia',
+                //     font: {
+                //       size: 14,
+                //       family: 'Arial, sans-serif'
+                //     }
+                //   },
+                //   showgrid: true,
+                //   gridcolor: '#e5e5e5',
+                //   gridwidth: 1,
+                //   zeroline: true,
+                //   showline: true,
+                //   linecolor: '#000000',
+                //   linewidth: 1.5,
+                //   tickfont: {
+                //     size: 11,
+                //     family: 'Arial, sans-serif'
+                //   }
+                // },
+                xaxis: { // <-- AHORA X ES LA DISTANCIA
                   title: {
                     text: 'Distancia',
-                    font: {
-                      size: 14,
-                      family: 'Arial, sans-serif'
-                    }
+                    font: { size: 14, family: 'Arial, sans-serif' }
                   },
                   showgrid: true,
                   gridcolor: '#e5e5e5',
@@ -295,10 +320,16 @@ export default function DendrogramPage() {
                   showline: true,
                   linecolor: '#000000',
                   linewidth: 1.5,
-                  tickfont: {
-                    size: 11,
-                    family: 'Arial, sans-serif'
-                  }
+                  tickfont: { size: 11, family: 'Arial, sans-serif' }
+                },
+                yaxis: { // <-- AHORA Y SON LAS ETIQUETAS (OCULTAS)
+                  showticklabels: false,
+                  showgrid: false,
+                  zeroline: false,
+                  showline: true,
+                  linecolor: '#000000',
+                  linewidth: 1.5,
+                  ticks: ''
                 },
                 font: {
                   family: 'Arial, sans-serif',
@@ -384,37 +415,7 @@ export default function DendrogramPage() {
           </div>
         </div>
 
-        {/* API Connection Guide */}
-        <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-xl p-5 shadow-sm">
-          <h3 className="text-sm font-bold text-yellow-900 mb-3 flex items-center">
-            <span className="text-lg mr-2">🔌</span>
-            Conectar con tu API de FastAPI
-          </h3>
-          <p className="text-sm text-yellow-800 mb-3">
-            Para conectar este frontend con tu API de FastAPI, descomenta las líneas 145-148 en el código:
-          </p>
-          <div className="bg-yellow-100 rounded-lg p-3 font-mono text-xs overflow-x-auto">
-            <pre className="text-yellow-900">
-{`const response = await fetch('http://localhost:8000/api/dendrograma');
-if (!response.ok) throw new Error('Error al obtener datos');
-const jsonData = await response.json();
-setData(jsonData);`}
-            </pre>
-          </div>
-          <p className="text-xs text-yellow-700 mt-2">
-            Asegúrate de que tu API de FastAPI devuelva un JSON con la estructura especificada en el tipo <code className="bg-yellow-200 px-1 rounded">DendrogramData</code>
-          </p>
-        </div>
       </div>
-
-      {/* Footer */}
-      <footer className="border-t border-gray-200 mt-12 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <p className="text-center text-sm text-gray-500">
-            Generado con Next.js 14 + Plotly.js + Tailwind CSS 4 | {new Date().toLocaleDateString('es-ES')}
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }
