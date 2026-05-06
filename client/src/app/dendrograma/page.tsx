@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 
 // Importar Plotly dinámicamente para evitar problemas de SSR
-const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
+const Plot = dynamic(() => import("react-plotly.js"), { ssr: false });
 
 interface DendrogramNode {
   name: string;
@@ -33,8 +33,9 @@ interface DendrogramCoords {
 
 export default function DendrogramPage() {
   const [data, setData] = useState<DendrogramData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [metodo, setMetodo] = useState<string | null>(null);
 
   // Función para convertir el árbol jerárquico a coordenadas de dendrograma
   const treeToCoords = (node: DendrogramNode): DendrogramCoords => {
@@ -46,26 +47,27 @@ export default function DendrogramPage() {
 
     const traverse = (
       currentNode: DendrogramNode,
-      height: number = 0
+      height: number = 0,
     ): { left: number; right: number; x: number } => {
       if (!currentNode.children || currentNode.children.length === 0) {
         // Nodo hoja
         const x = leafPosition * 10 + 5;
         leafPosition++;
-        
-        const label = currentNode.name.length > 20 
-          ? currentNode.name.substring(0, 17) + '...' 
-          : currentNode.name;
-        
+
+        const label =
+          currentNode.name.length > 20
+            ? currentNode.name.substring(0, 17) + "..."
+            : currentNode.name;
+
         labels.push(label);
         labelCoords.push({ x, label });
-        
+
         return { left: x, right: x, x };
       }
 
       // Nodo interno - procesar hijos
-      const childResults = currentNode.children.map(child => 
-        traverse(child, (currentNode.distancia || 0) * 50)
+      const childResults = currentNode.children.map((child) =>
+        traverse(child, (currentNode.distancia || 0) * 50),
       );
 
       const leftmost = childResults[0].left;
@@ -75,7 +77,7 @@ export default function DendrogramPage() {
 
       // Dibujar líneas del dendrograma
       // Primero, líneas verticales desde cada hijo hasta la altura actual
-      childResults.forEach(child => {
+      childResults.forEach((child) => {
         icoord.push([child.x, child.x]);
         dcoord.push([height, nodeHeight]);
       });
@@ -102,44 +104,44 @@ export default function DendrogramPage() {
     // Traza para las líneas del dendrograma
     icoord.forEach((xcoords, idx) => {
       traces.push({
-        type: 'scatter',
+        type: "scatter",
         // x: xcoords,
         // y: dcoord[idx],
         x: dcoord[idx],
         y: xcoords,
-        mode: 'lines',
+        mode: "lines",
         line: {
-          color: '#000000',
-          width: 1.5
+          color: "#000000",
+          width: 1.5,
         },
-        hoverinfo: 'skip',
-        showlegend: false
+        hoverinfo: "skip",
+        showlegend: false,
       });
     });
 
     // Agregar etiquetas en el eje X
     const labelTrace = {
-      type: 'scatter',
+      type: "scatter",
       // x: labelCoords.map(l => l.x),
       // y: Array(labelCoords.length).fill(0),
       x: Array(labelCoords.length).fill(0),
-      y: labelCoords.map(l => l.x),
-      mode: 'text',
-      text: labelCoords.map(l => l.label),
+      y: labelCoords.map((l) => l.x),
+      mode: "text",
+      text: labelCoords.map((l) => l.label),
       // textposition: 'bottom',
       // textangle: -90,
-      textposition: 'middle left',
+      textposition: "middle left",
       textangle: 0,
       textfont: {
         size: 10,
-        family: 'Arial, sans-serif',
-        color: '#000000'
+        family: "Arial, sans-serif",
+        color: "#000000",
       },
-      hoverinfo: 'text',
-      hovertext: labelCoords.map(l => l.label),
-      showlegend: false
+      hoverinfo: "text",
+      hovertext: labelCoords.map((l) => l.label),
+      showlegend: false,
     };
-    
+
     traces.push(labelTrace);
 
     return traces;
@@ -147,24 +149,53 @@ export default function DendrogramPage() {
 
   // Simular carga de datos de la API
   useEffect(() => {
+    // Si no hay método elegido, no hagas la petición
+    if (!metodo) return;
+
     const fetchData = async () => {
       try {
         setLoading(true);
-        
-        // REEMPLAZA ESTA URL CON TU ENDPOINT DE FASTAPI
-        const response = await fetch('http://localhost:8000/api/v1/clustering/distancia-coseno');
-        if (!response.ok) throw new Error('Error al obtener datos');
+        // Usar la variable 'metodo' en la URL
+        const response = await fetch(
+          `http://localhost:8000/api/v1/clustering/${metodo}`,
+        );
+        if (!response.ok) throw new Error("Error al obtener datos");
         const jsonData = await response.json();
         setData(jsonData);
         setLoading(false);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error al cargar datos');
+        setError(err instanceof Error ? err.message : "Error al cargar datos");
         setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [metodo]); // <-- Importante: agregar 'metodo' aquí para que re-consulte si cambias de opción
+
+  // Pantalla inicial de selección
+  if (!metodo) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="bg-white p-8 rounded-xl shadow-lg max-w-md w-full text-center">
+          <h2 className="text-2xl font-bold mb-6 text-gray-900">
+            Elige un método
+          </h2>
+          <button
+            onClick={() => setMetodo("distancia-coseno")}
+            className="w-full mb-4 px-4 py-3 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Usar Distancia Coseno
+          </button>
+          <button
+            onClick={() => setMetodo("jaccard")}
+            className="w-full px-4 py-3 bg-purple-600 text-white rounded hover:bg-purple-700"
+          >
+            Usar Jaccard
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -182,7 +213,9 @@ export default function DendrogramPage() {
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-4">
           <div className="text-red-600 text-5xl mb-4">⚠️</div>
-          <p className="text-red-600 text-lg mb-4 font-semibold">Error al cargar datos</p>
+          <p className="text-red-600 text-lg mb-4 font-semibold">
+            Error al cargar datos
+          </p>
           <p className="text-gray-600 text-sm mb-6">{error}</p>
           <button
             onClick={() => window.location.reload()}
@@ -203,13 +236,26 @@ export default function DendrogramPage() {
     <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="border-b border-gray-200 bg-white sticky top-0 z-10 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Dendrograma de Clustering Jerárquico
-          </h1>
-          <p className="mt-2 text-sm text-gray-600">
-            Método: <span className="font-mono font-semibold">{data.metadata.metodo}</span>
-          </p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center mt-20">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Dendrograma</h1>
+            <p className="mt-1 text-sm text-gray-600">
+              Método:{" "}
+              <span className="font-mono font-semibold">
+                {data.metadata.metodo}
+              </span>
+            </p>
+          </div>
+
+          {/* Este es el nuevo selector para cambiar de opción una vez graficado */}
+          <select
+            value={metodo}
+            onChange={(e) => setMetodo(e.target.value)}
+            className="border border-gray-300 rounded-md py-2 px-3 bg-white text-gray-700 font-semibold cursor-pointer"
+          >
+            <option value="distancia-coseno">Distancia Coseno</option>
+            <option value="jaccard">Jaccard</option>
+          </select>
         </div>
       </header>
 
@@ -249,25 +295,29 @@ export default function DendrogramPage() {
               Visualización del Clustering
             </h2>
             <p className="text-sm text-gray-600">
-              Dendrograma generado mediante clustering jerárquico aglomerativo con método Ward
+              Dendrograma generado mediante clustering jerárquico aglomerativo
+              con método Ward
             </p>
           </div>
-          
-          <div className="w-full bg-gray-50 rounded-lg p-4" style={{ height: '850px' }}>
+
+          <div
+            className="w-full bg-gray-50 rounded-lg p-4"
+            style={{ height: "850px" }}
+          >
             <Plot
               data={createDendrogramTraces(data.dendrograma)}
               layout={{
                 title: {
-                  text: 'average',
+                  text: "average",
                   font: {
                     size: 20,
-                    family: 'Arial, sans-serif',
-                    color: '#000000'
+                    family: "Arial, sans-serif",
+                    color: "#000000",
                   },
                   x: 0.5,
-                  xanchor: 'center',
+                  xanchor: "center",
                   y: 0.98,
-                  yanchor: 'top'
+                  yanchor: "top",
                 },
                 autosize: true,
                 height: 800,
@@ -277,7 +327,7 @@ export default function DendrogramPage() {
                   r: 40,
                   t: 80,
                   // b: 250
-                  b: 60
+                  b: 60,
                 },
                 // xaxis: {
                 //   showticklabels: false,
@@ -308,54 +358,56 @@ export default function DendrogramPage() {
                 //     family: 'Arial, sans-serif'
                 //   }
                 // },
-                xaxis: { // <-- AHORA X ES LA DISTANCIA
+                xaxis: {
+                  // <-- AHORA X ES LA DISTANCIA
                   title: {
-                    text: 'Distancia',
-                    font: { size: 14, family: 'Arial, sans-serif' }
+                    text: "Distancia",
+                    font: { size: 14, family: "Arial, sans-serif" },
                   },
                   showgrid: true,
-                  gridcolor: '#e5e5e5',
+                  gridcolor: "#e5e5e5",
                   gridwidth: 1,
                   zeroline: true,
                   showline: true,
-                  linecolor: '#000000',
+                  linecolor: "#000000",
                   linewidth: 1.5,
-                  tickfont: { size: 11, family: 'Arial, sans-serif' }
+                  tickfont: { size: 11, family: "Arial, sans-serif" },
                 },
-                yaxis: { // <-- AHORA Y SON LAS ETIQUETAS (OCULTAS)
+                yaxis: {
+                  // <-- AHORA Y SON LAS ETIQUETAS (OCULTAS)
                   showticklabels: false,
                   showgrid: false,
                   zeroline: false,
                   showline: true,
-                  linecolor: '#000000',
+                  linecolor: "#000000",
                   linewidth: 1.5,
-                  ticks: ''
+                  ticks: "",
                 },
                 font: {
-                  family: 'Arial, sans-serif',
+                  family: "Arial, sans-serif",
                   size: 11,
-                  color: '#000000'
+                  color: "#000000",
                 },
-                paper_bgcolor: '#f9fafb',
-                plot_bgcolor: '#ffffff',
-                hovermode: 'closest',
-                showlegend: false
+                paper_bgcolor: "#f9fafb",
+                plot_bgcolor: "#ffffff",
+                hovermode: "closest",
+                showlegend: false,
               }}
               config={{
                 responsive: true,
                 displayModeBar: true,
                 displaylogo: false,
-                modeBarButtonsToRemove: ['lasso2d', 'select2d', 'autoScale2d'],
+                modeBarButtonsToRemove: ["lasso2d", "select2d", "autoScale2d"],
                 toImageButtonOptions: {
-                  format: 'png',
-                  filename: 'dendrograma_clustering',
+                  format: "png",
+                  filename: "dendrograma_clustering",
                   height: 1000,
                   width: 1600,
-                  scale: 2
-                }
+                  scale: 2,
+                },
               }}
               useResizeHandler={true}
-              style={{ width: '100%', height: '100%' }}
+              style={{ width: "100%", height: "100%" }}
             />
           </div>
         </div>
@@ -371,11 +423,16 @@ export default function DendrogramPage() {
             <ul className="text-sm text-blue-800 space-y-2">
               <li className="flex items-start">
                 <span className="mr-2">•</span>
-                <span>El eje Y representa la distancia de agrupación (linkage distance)</span>
+                <span>
+                  El eje Y representa la distancia de agrupación (linkage
+                  distance)
+                </span>
               </li>
               <li className="flex items-start">
                 <span className="mr-2">•</span>
-                <span>Las hojas en el eje X representan los clusters finales</span>
+                <span>
+                  Las hojas en el eje X representan los clusters finales
+                </span>
               </li>
               <li className="flex items-start">
                 <span className="mr-2">•</span>
@@ -409,12 +466,13 @@ export default function DendrogramPage() {
               </div>
               <div className="flex justify-between py-1">
                 <span className="font-semibold">Total de nodos:</span>
-                <span className="font-mono text-xs">{data.metadata.nodos_hoja_dendrograma}</span>
+                <span className="font-mono text-xs">
+                  {data.metadata.nodos_hoja_dendrograma}
+                </span>
               </div>
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );
