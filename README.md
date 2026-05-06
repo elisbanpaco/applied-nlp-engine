@@ -136,7 +136,6 @@ applied-nlp-engine/
 |----------|--------|-------------|
 | `/api/v1/clustering/distancia-coseno` | GET | Generate dendrogram with cosine similarity |
 | `/api/v1/clustering/jaccard` | GET | Generate dendrogram with Jaccard index |
-| `/api/v1/clustering/dendrograma-local` | GET | Alias for cosine endpoint |
 
 ### Example Requests
 
