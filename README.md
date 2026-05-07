@@ -44,9 +44,10 @@ Applied NLP Engine is a production-ready NLP system designed for processing, ana
 
 ### Prerequisites
 
-- Python 3.11+
+- Python 3.13+
 - Node.js 18+
 - pnpm (recommended)
+- uv (recommended for Python)
 
 ### Installation
 
@@ -55,16 +56,12 @@ Applied NLP Engine is a production-ready NLP system designed for processing, ana
 git clone https://github.com/elisbanpaco/applied-nlp-engine.git
 cd applied-nlp-engine
 
-# Backend setup
+# Backend setup (uv recommended)
 cd api
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# venv\Scripts\activate  # Windows
-pip install -r requirements.txt
+uv sync
 
 # Download Spanish models
 python -m spacy download es_core_news_lg
-python -m spacy download es_core_news_md
 
 # Frontend setup
 cd ../client
@@ -103,7 +100,7 @@ applied-nlp-engine/
 │   ├── data/                    # Dataset (250k comments)
 │   │   └── REP_COMENTARIO2.csv
 │   ├── main.py                  # Application entry
-│   └── requirements.txt
+│   └── pyproject.toml          # uv/dependencies config
 │
 ├── client/                       # Next.js frontend
 │   ├── src/
@@ -116,7 +113,7 @@ applied-nlp-engine/
 │   │   └── Footer.tsx
 │   ├── package.json
 │   ├── next.config.ts
-│   └── tailwind.config.ts
+│   └── postcss.config.mjs
 │
 ├── LICENSE
 ├── AGENTS.md
