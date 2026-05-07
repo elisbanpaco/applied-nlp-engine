@@ -2,8 +2,7 @@ import spacy
 import numpy as np
 
 # 1. Cargamos nuestro "Diccionario de Vectores" en español
-# print("Cargando modelo de lenguaje...")
-nlp = spacy.load("es_core_news_md")
+nlp = spacy.load("es_core_news_lg")
 
 def obtener_vector_promedio(texto):
     """
