@@ -24,7 +24,9 @@ wheels/
 venv/
 ENV/
 env/
-.venv
+.venv/
+.venv/*
+!.venv/
 
 # IDE
 .vscode/
@@ -36,15 +38,26 @@ env/
 # Environment
 .env
 .env.local
+*.local
 
 # Testing
 .pytest_cache/
 .coverage
 htmlcov/
+.tox/
 
 # Logs
 *.log
+logs/
 
 # OS
 .DS_Store
 Thumbs.db
+
+# uv
+uv.lock
+!.lock
+
+# Data
+data/*.csv
+!data/.gitkeep
