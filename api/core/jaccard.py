@@ -1,7 +1,7 @@
 import spacy
 
 # Cargamos el modelo en español
-nlp = spacy.load("es_core_news_md")
+nlp = spacy.load("es_core_news_lg")
 
 def set_limpio(texto):
     """
