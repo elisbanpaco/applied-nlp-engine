@@ -33,7 +33,7 @@ if __name__ == "__main__":
     DATASET_PATH = PROJECT_ROOT / "api/data" / "REP_COMENTARIO2.csv" 
     
     # =========================================================================
-    # LÓGICA SENIOR: Reconstrucción de fragmentos y paridad con API
+    # LÓGICA: Reconstrucción de fragmentos y paridad con API
     # =========================================================================
     logger.info("Cargando corpus reconstruyendo saltos de línea huérfanos...")
     comentarios_brutos = []
@@ -85,11 +85,16 @@ if __name__ == "__main__":
     
     # Vectorizamos
     X = vectorize_texts(comentarios)
+    
+    # Normalización L2 (Alinea la optimización de KMeans con el Silhouette Coseno)
+    from sklearn.preprocessing import normalize
+    X = normalize(X, norm='l2', axis=1)
+    
     N = X.shape[0]
     logger.info(f"Matriz procesada. Total de documentos con vector (N) = {N}")
 
     # =========================================================================
-    # LÓGICA SENIOR: Generación Dinámica del Espacio de Búsqueda
+    # LÓGICA : Generación Dinámica del Espacio de Búsqueda
     # =========================================================================
     # Regla de oro empírica: el k máximo suele ser la raíz cuadrada de N/2
     # 1. Calculamos la cota teórica basada en la raíz cuadrada de la densidad
