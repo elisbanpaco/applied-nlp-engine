@@ -1,4 +1,4 @@
-
+import os
 from fastapi import HTTPException
 import pandas as pd
 import spacy
@@ -6,21 +6,23 @@ import numpy as np
 import fastcluster
 from scipy.spatial.distance import pdist
 from scipy.cluster import hierarchy
-import os
 from sklearn.cluster import MiniBatchKMeans
 
-
+# Cargar el modelo de lenguaje pesado de producción
 nlp = spacy.load("es_core_news_lg")
 
 def build_tree_dict_kmeans(node, cluster_texts):
+    """
+    Construye de forma recursiva el árbol JSON jerárquico adaptado para Plotly.js.
+    """
     if node.is_leaf():
-        # Tomamos hasta 3 comentarios de ejemplo para este clúster
+        # Extraemos hasta 3 comentarios desidentificados de ejemplo para el Tooltip de la UI
         ejemplos = cluster_texts.get(node.id, ["Sin ejemplos"])[:3]
-        # Usamos un fragmento del primer comentario como nombre representativo en el gráfico
+        # Fragmento representativo del primer documento para rotular la hoja
         nombre_corto = ejemplos[0][:40] + "..." if ejemplos else f"Grupo {node.id}"
         return {
             "name": nombre_corto,
-            "ejemplos": ejemplos, # El frontend (Next.js) puede usar esto para un Tooltip (Hover)
+            "ejemplos": ejemplos, 
             "value": 1
         }
     return {
@@ -33,76 +35,79 @@ def build_tree_dict_kmeans(node, cluster_texts):
     }
 
 async def generar_dendrograma_distancia_coseno_with_dataset():
-    ruta_archivo = "data/REP_COMENTARIO2.csv"
+    """
+    Calcula la topología jerárquica acoplada sobre el corpus seguro anonimizado de SUNARP.
+    """
+    # PARIDAD: Apuntamos estrictamente al corpus curado y anonimizado por el pipeline ético
+    ruta_archivo = "data/REP_COMENTARIO2_ANONYMOUS.csv"
     if not os.path.exists(ruta_archivo):
-        raise HTTPException(status_code=404, detail=f"No se encontró el archivo en {ruta_archivo}")
+        raise HTTPException(
+            status_code=404, 
+            detail=f"No se encontró el dataset desidentificado en {ruta_archivo}. Ejecute 01_anonymize_data.py primero."
+        )
 
     try:
+        # PARIDAD: Leemos el CSV sin cabecera tal como lo exportó el pipeline de privacidad
         df = pd.read_csv(
             ruta_archivo, 
             sep=';', 
             encoding='utf-8', 
-            on_bad_lines='skip',
+            header=None,
+            names=['COMENTARIO'],
             engine='python'
         )
-        if "COMENTARIO" not in df.columns:
-            raise HTTPException(status_code=400, detail="La columna 'COMENTARIO' no existe.")
-            
-        # Filtramos nulos y nos quedamos con comentarios únicos para no procesar duplicados exactos
-        comentarios_unicos = df["COMENTARIO"].dropna().astype(str).unique().tolist()
         
-        # Opcional: Filtrar comentarios muy cortos (menos de 2 palabras) o letras sueltas
-        comentarios_validos = [c for c in comentarios_unicos if len(c.split()) > 1]
+        # Ingesta directa del corpus pre-procesado libre de duplicados y texto espurio
+        comentarios_validos = df["COMENTARIO"].dropna().astype(str).tolist()
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error al leer el CSV: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error en la lectura del corpus seguro: {str(e)}")
 
     if len(comentarios_validos) < 10:
-         raise HTTPException(status_code=400, detail="Muy pocos comentarios válidos.")
+         raise HTTPException(status_code=400, detail="Volumen insuficiente de documentos válidos en el corpus.")
 
-    # 1. FASE A: VECTORIZACIÓN DE DOCUMENTOS (COMENTARIOS COMPLETOS)
+    # 1. FASE A: VECTORIZACIÓN NEURO-LINGÜÍSTICA OPTIMIZADA
     vectores = []
     textos_procesados = []
     
-    # Usamos nlp.pipe que es muchísimo más rápido para procesar listas grandes
-    # Desactivamos 'parser' y 'ner' porque solo queremos los vectores, ahorrando mucha RAM
-    for doc in nlp.pipe(comentarios_validos, batch_size=2000, disable=["parser", "ner"]):
+    # Desactivamos componentes innecesarios para maximizar el throughput de la API
+    for doc in nlp.pipe(comentarios_validos, batch_size=2000, disable=["parser", "ner", "lemmatizer"]):
         if doc.has_vector:
             vectores.append(doc.vector)
             textos_procesados.append(doc.text)
 
     X = np.array(vectores)
 
-    # 2. FASE B: PRE-CLUSTERING LINEAL (Reducir 238k a 500 grupos manejables)
-    # MiniBatchKMeans es ultra rápido y consume muy poca memoria
-    n_clusters = min(500, len(X)) # Generamos máximo 500 grupos
+    # 2. FASE B: PRE-CLUSTERING DE REDUCCIÓN DIMENSIONAL ACUESTA
+    # PARIDAD: Actualizado al óptimo matemático validado de k = 127 macro-representantes
+    n_clusters = min(127, len(X)) 
     kmeans = MiniBatchKMeans(n_clusters=n_clusters, random_state=42, batch_size=2048, n_init='auto')
     kmeans.fit(X)
     
-    # Obtenemos los vectores centrales de esos 500 grupos
     centroides = kmeans.cluster_centers_
 
-    # Mapeamos qué comentarios pertenecen a qué clúster para mostrarlos luego
+    # Agrupamos los textos correspondientes a cada centroide para la serialización
     textos_por_cluster = {i: [] for i in range(n_clusters)}
-    for texto, label in zip(textos_procesados, kmeans.labels_):
-        if len(textos_por_cluster[label]) < 10: # Guardamos max 10 ejemplos por grupo para no saturar el JSON
+    for texto, label in zip(textos_processed := textos_procesados, kmeans.labels_):
+        if len(textos_por_cluster[label]) < 10: 
             textos_por_cluster[label].append(texto)
 
-    # 3. FASE C: DENDROGRAMA SOBRE LOS CENTROIDES
-    # MODIFICADO: Cambiamos 'ward' por 'average' para respetar la distancia coseno
+    # 3. FASE C: CONSTRUCCIÓN TOPOLÓGICA DEL DENDROGRAMA EN C++
+    # Enlace jerárquico promedio fundamentado en la geometría de la distancia coseno
     distancias_condensadas = pdist(centroides, metric='cosine')
     matriz_linkage = fastcluster.linkage(distancias_condensadas, method='average')
     
-    # 4. CONSTRUCCIÓN DEL ÁRBOL PARA NEXT.JS
+    # 4. PARSEO RECURSIVO PARA RENDERIZADO EN EL CLIENTE NEXT.JS
     root_node, _ = hierarchy.to_tree(matriz_linkage, rd=True)
     arbol_json = build_tree_dict_kmeans(root_node, textos_por_cluster)
 
+    # Retorno estructurado idéntico a las métricas reportadas en los metadatos del artículo
     return {
         "metadata": {
             "comentarios_unicos_validos": len(comentarios_validos),
             "comentarios_vectorizados": len(textos_procesados),
             "nodos_hoja_dendrograma": n_clusters,
-            "metodo": "Spacy + MiniBatchKMeans + Average Linkage (Coseno)" # MODIFICADO
+            "metodo": "Spacy + MiniBatchKMeans + Average Linkage (Coseno)"
         },
         "dendrograma": arbol_json
     }
