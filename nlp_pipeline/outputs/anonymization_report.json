@@ -1,0 +1,7 @@
+{
+    "metricas_privacidad": {
+        "total_documentos_procesados": 38109,
+        "documentos_con_pii_detectado_y_removido": 2469,
+        "porcentaje_documentos_protegidos": 6.48
+    }
+}
