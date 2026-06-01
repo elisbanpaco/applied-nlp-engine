@@ -107,18 +107,20 @@ api/
 ```json
 {
   "metadata": {
-    "comentarios_unicos_validos": 238492,
-    "comentarios_vectorizados": 238492,
-    "nodos_hoja_dendrograma": 500,
+    "comentarios_unicos_validos": 38109,
+    "comentarios_vectorizados": 37989,
+    "nodos_hoja_dendrograma": 127,
     "metodo": "Spacy + MiniBatchKMeans + Average Linkage (Coseno)"
   },
   "dendrograma": {
-    "name": "Macro_Cluster_999",
-    "distancia": 0.8234,
+    "name": "Macro_Cluster_252",
+    "distancia": 0.9744,
     "children": [...]
   }
 }
 ```
+
+*Nota: El número de comentarios vectorizados difiere ligeramente entre Coseno (37,989) y Jaccard (37,309) debido a los filtros de stop-words y puntuación. En Jaccard, cualquier comentario compuesto únicamente por stop-words se descarta al no poder construirse un Bag-of-Words válido.*
 
 ## How It Works
 
@@ -126,20 +128,25 @@ api/
 
 **Cosine Similarity**: 
 - Uses spaCy semantic embeddings (300-dim vectors)
-- Averages word vectors excluding stopwords
+- Averages word vectors excluding stopwords and punctuation
 - Computes dot product / (norms product)
 
 **Jaccard Index**:
-- Lemmatizes and cleans text via spaCy
+- Lemmatizes and cleans text via spaCy (excluding stopwords, punctuation, and spaces)
 - Creates binary word sets
 - Computes |A ∩ B| / |A ∪ B|
 
 ### Clustering Pipeline
 
-1. **Text Vectorization**: spaCy `nlp.pipe()` with batch_size=2000
-2. **Pre-clustering**: MiniBatchKMeans reduces 200k → 500 groups
-3. **Hierarchical**: fastcluster with average linkage
-4. **Output**: JSON tree for Plotly.js dendrogram
+1. **Text Vectorization**:
+   - **Cosine**: spaCy `nlp.pipe()` extracts dense 300-dim embeddings.
+   - **Jaccard**: CountVectorizer converts text to sparse binary Bag-of-Words vectors.
+2. **Pre-clustering**:
+   - `MiniBatchKMeans` reduces the corpus ($N \approx 38,109$ unique documents) to $k=127$ representatives.
+   - **Cosine**: Feature matrix is **L2-normalized** before fitting (Spherical K-Means) to align with the angular metric.
+   - **Jaccard**: Representatives are projected to **Medoids** (the closest real document binary vector in the cluster) to avoid float averages and empty (all-zeros) vectors.
+3. **Hierarchical**: fastcluster average linkage (UPGMA) over the representatives' distance matrix.
+4. **Output**: Recursive JSON tree structure for frontend rendering.
 
 ## Environment Variables
 
