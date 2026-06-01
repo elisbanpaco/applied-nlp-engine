@@ -1,6 +1,6 @@
 {
-    "silhouette_score": 0.3638,
-    "davies_bouldin_index": 1.0977,
-    "n_clusters": 50,
+    "silhouette_score": 0.2684,
+    "davies_bouldin_index": 0.931,
+    "n_clusters": 30,
     "n_noise_points": 0
 }

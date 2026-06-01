@@ -1,27 +1,27 @@
 [
     {
         "k": 50,
-        "inertia": 6750908.0,
-        "silhouette_score": 0.06453514099121094
+        "inertia": 11551.068359375,
+        "silhouette_score": 0.12497790157794952
     },
     {
         "k": 88,
-        "inertia": 6054048.0,
-        "silhouette_score": 0.06342954188585281
+        "inertia": 10209.515625,
+        "silhouette_score": 0.13670244812965393
     },
     {
         "k": 127,
-        "inertia": 5510699.0,
-        "silhouette_score": 0.07482769340276718
+        "inertia": 9538.50390625,
+        "silhouette_score": 0.14139066636562347
     },
     {
         "k": 166,
-        "inertia": 5209740.0,
-        "silhouette_score": 0.05454437807202339
+        "inertia": 9022.6826171875,
+        "silhouette_score": 0.14217011630535126
     },
     {
         "k": 205,
-        "inertia": 4996260.0,
-        "silhouette_score": 0.04637863487005234
+        "inertia": 8713.48828125,
+        "silhouette_score": 0.14155595004558563
     }
 ]

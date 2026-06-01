@@ -2,211 +2,211 @@
     "estadisticas_corpus": {
         "total_documentos_evaluados": 38109,
         "total_tokens_validos": 294972,
-        "palabras_fuera_de_vocabulario_oov": 15664,
-        "oov_rate_porcentaje": 5.3103,
+        "palabras_fuera_de_vocabulario_oov": 6354,
+        "oov_rate_porcentaje": 2.1541,
         "longitud_promedio_tokens_informativos": 7.74,
         "longitud_mediana_tokens_informativos": 6
     },
     "top_50_errores_o_palabras_oov": [
         [
-            "visualizar",
-            526
-        ],
-        [
-            "predios",
-            294
-        ],
-        [
-            "deberian",
-            273
-        ],
-        [
             "sunarp",
             239
-        ],
-        [
-            "visualizacion",
-            187
-        ],
-        [
-            "visualiza",
-            144
-        ],
-        [
-            "muy",
-            138
-        ],
-        [
-            "excelente",
-            93
-        ],
-        [
-            "encontre",
-            86
-        ],
-        [
-            "amigable",
-            85
-        ],
-        [
-            "busquedas",
-            84
-        ],
-        [
-            "intentos",
-            82
-        ],
-        [
-            "registrales",
-            81
-        ],
-        [
-            "satisfecho",
-            73
-        ],
-        [
-            "visualizaciones",
-            64
-        ],
-        [
-            "gracias",
-            59
         ],
         [
             "capcha",
             58
         ],
         [
-            "ubicar",
-            57
-        ],
-        [
             "bgr",
             57
-        ],
-        [
-            "habilitar",
-            52
-        ],
-        [
-            "retroceder",
-            49
-        ],
-        [
-            "permitan",
-            47
-        ],
-        [
-            "sugiero",
-            47
         ],
         [
             "vizualizar",
             46
         ],
         [
-            "poligonos",
-            46
-        ],
-        [
-            "se",
-            40
-        ],
-        [
-            "pesimo",
-            38
-        ],
-        [
-            "ayudo",
-            37
-        ],
-        [
-            "buen",
-            37
-        ],
-        [
-            "podrian",
-            36
-        ],
-        [
-            "brindar",
-            35
-        ],
-        [
-            "agil",
-            34
-        ],
-        [
-            "deberia",
-            34
-        ],
-        [
-            "buscaba",
-            34
-        ],
-        [
-            "todo",
-            33
-        ],
-        [
-            "sirvio",
-            30
-        ],
-        [
-            "archivados",
-            28
-        ],
-        [
-            "buena",
-            27
-        ],
-        [
-            "complicado",
-            26
-        ],
-        [
-            "faltaria",
-            25
-        ],
-        [
             "psad",
             25
         ],
         [
-            "satisfecha",
-            24
+            "n°",
+            19
         ],
         [
-            "mejoren",
-            24
+            "wgs84",
+            17
         ],
         [
-            "esta",
-            24
+            "psad56",
+            17
         ],
         [
-            "debería",
-            24
+            "visulizar",
+            16
         ],
         [
-            "muchas",
-            23
+            "excelnte",
+            16
         ],
         [
-            "cuelga",
-            22
+            "cofopri",
+            16
         ],
         [
-            "servico",
-            22
+            "previsualizacion",
+            14
         ],
         [
-            "mas",
-            22
+            "visualisar",
+            14
         ],
         [
-            "busque",
-            22
+            "vizualizacion",
+            13
+        ],
+        [
+            "excelete",
+            12
+        ],
+        [
+            "exlente",
+            11
+        ],
+        [
+            "debria",
+            11
+        ],
+        [
+            "dberia",
+            10
+        ],
+        [
+            "visulaizar",
+            10
+        ],
+        [
+            "busquedad",
+            10
+        ],
+        [
+            "ecxelente",
+            10
+        ],
+        [
+            "imprmir",
+            9
+        ],
+        [
+            "siguelo",
+            9
+        ],
+        [
+            "inprimir",
+            9
+        ],
+        [
+            "informcion",
+            9
+        ],
+        [
+            "superposicion",
+            9
+        ],
+        [
+            "visuliza",
+            8
+        ],
+        [
+            "partidad",
+            8
+        ],
+        [
+            "desface",
+            7
+        ],
+        [
+            "visializar",
+            7
+        ],
+        [
+            "imprimr",
+            7
+        ],
+        [
+            "srvicio",
+            7
+        ],
+        [
+            "kmz",
+            7
+        ],
+        [
+            "actualizen",
+            7
+        ],
+        [
+            "sullana",
+            7
+        ],
+        [
+            "jiron",
+            7
+        ],
+        [
+            "viasualizar",
+            7
+        ],
+        [
+            "descragar",
+            7
+        ],
+        [
+            "visualisacion",
+            6
+        ],
+        [
+            "independizacion",
+            6
+        ],
+        [
+            "excente",
+            6
+        ],
+        [
+            "bieb",
+            6
+        ],
+        [
+            "imprimer",
+            6
+        ],
+        [
+            "sprl",
+            6
+        ],
+        [
+            "dberian",
+            6
+        ],
+        [
+            "wgs",
+            6
+        ],
+        [
+            "satisfechosatisfechoalgo",
+            6
+        ],
+        [
+            "paltaforma",
+            6
+        ],
+        [
+            "ecelente",
+            6
+        ],
+        [
+            "buien",
+            5
         ]
     ]
 }
