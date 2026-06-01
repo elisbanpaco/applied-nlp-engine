@@ -97,8 +97,21 @@ async def generar_dendrograma_jaccard_with_dataset():
             textos_por_cluster[label].append(texto_orig)
 
     # 3. FASE C: DENDROGRAMA CON ENLACE PROMEDIO Y DISTANCIA JACCARD
-    # Binarizamos los centroides promediados flotantes mediante un umbral de activación estricto del 5%
-    centroides_binarios = (kmeans.cluster_centers_ > 0.05).astype(bool)
+    # Proyección a Medoides: Seleccionamos el documento real más cercano al centroide de cada cluster.
+    # Esto asegura vectores puramente binarios válidos (sin flotantes ni umbrales arbitrarios) y evita vectores vacíos (all-zeros).
+    centroides_binarios = np.zeros((n_clusters, X_sparse.shape[1]), dtype=bool)
+    for i in range(n_clusters):
+        indices_doc_cluster = np.where(kmeans.labels_ == i)[0]
+        if len(indices_doc_cluster) > 0:
+            # Convertimos a denso de manera perezosa únicamente para los documentos asignados a este cluster
+            docs_cluster = X_sparse[indices_doc_cluster].toarray()
+            distancias = np.linalg.norm(docs_cluster - kmeans.cluster_centers_[i], axis=1)
+            idx_mejor_doc = indices_doc_cluster[np.argmin(distancias)]
+            # Guardamos el vector binario del medoide real del cluster
+            centroides_binarios[i] = X_sparse[idx_mejor_doc].toarray().astype(bool)[0]
+        else:
+            # Fallback en caso extremadamente raro de cluster sin asignaciones
+            centroides_binarios[i] = (kmeans.cluster_centers_[i] > 0.05).astype(bool)
 
     # Ejecución de operaciones booleanas condensadas de intersección/unión (Jaccard)
     distancias_condensadas = pdist(centroides_binarios, metric='jaccard')
