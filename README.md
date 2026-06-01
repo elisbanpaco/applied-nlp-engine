@@ -161,17 +161,18 @@ curl "http://localhost:8000/api/v1/clustering/distancia-coseno"
 
 ### Clustering Pipeline
 
-1. **Text Vectorization**: Documents are converted to semantic vectors using spaCy es_core_news_lg
-2. **Pre-clustering**: MiniBatchKMeans reduces 200k+ texts to ~500 manageable groups
-3. **Hierarchical Clustering**: Dendrogram built using average linkage with cosine/jaccard distance
-4. **Visualization**: Interactive tree visualization in the frontend with Plotly.js
+1. **Text Vectorization**: Documents are converted to semantic vectors using spaCy `es_core_news_lg` (Cosine) or binary Bag-of-Words (Jaccard).
+2. **Pre-clustering**: `MiniBatchKMeans` reduces the corpus ($N \approx 38,109$ unique documents) to $k = 127$ macro-representatives. For Cosine clustering, vectors are **L2-normalized** beforehand to align with the angular metric (Spherical K-Means). For Jaccard clustering, representatives are selected using **Medoid Projection** (extracting the closest real document vector per cluster) to prevent empty vectors.
+3. **Hierarchical Clustering**: A dendrogram is built using fastcluster's average linkage based on cosine or Jaccard distances of the representatives.
+4. **Visualization**: Interactive tree visualization in the frontend with Plotly.js.
 
 ### Why This Approach?
 
-- **Scalability**: MiniBatchKMeans handles 200k+ documents efficiently via batch processing
-- **Accuracy**: Spanish-specific embeddings capture linguistic nuances
-- **Interpretability**: Dendrograms show hierarchical relationships between topics
-- **Performance**: `nlp.pipe()` with batch_size=2000 optimizes memory usage
+- **Mathematical Rigor**: Spherical K-Means (L2 normalized) and Medoid Projection prevent metric distortion and avoid empty cluster vectors.
+- **Scalability**: MiniBatchKMeans handles large-scale corpora efficiently by reducing density before hierarchical building.
+- **Deduplication**: Eliminating duplicates cleans the data from 262k rows to 38,109 unique comments, drastically reducing computation.
+- **Spanish Lemmatization**: Custom pipeline filtering (excluding stopwords, punctuation, and numbers) ensures precise lexical overlap.
+- **Performance**: High-throughput `nlp.pipe()` with parallel regex anonymization optimizes CPU execution.
 
 ## Frontend Pages
 
