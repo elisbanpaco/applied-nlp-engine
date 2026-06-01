@@ -77,6 +77,10 @@ async def generar_dendrograma_distancia_coseno_with_dataset():
             textos_procesados.append(doc.text)
 
     X = np.array(vectores)
+    
+    # Normalización L2 (Esencial para alinear la optimización euclidiana de KMeans con la distancia coseno)
+    from sklearn.preprocessing import normalize
+    X = normalize(X, norm='l2', axis=1)
 
     # 2. FASE B: PRE-CLUSTERING DE REDUCCIÓN DIMENSIONAL ACUESTA
     # PARIDAD: Actualizado al óptimo matemático validado de k = 127 macro-representantes
