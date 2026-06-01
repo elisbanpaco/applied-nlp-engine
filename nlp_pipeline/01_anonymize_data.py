@@ -103,15 +103,25 @@ if __name__ == "__main__":
         logger.info(f"Total comentarios listos para el proceso de anonimización: {len(comentarios_filtrados)}")
 
         # ---- EJECUCIÓN DEL PIPELINE DE ANONIMIZACIÓN ----
-        logger.info("Aplicando desidentificación masiva (Esto puede tomar un momento debido al NER)...")
+        logger.info("Aplicando desidentificación masiva (Fase 1: Patrones RegEx)...")
+        comentarios_regex = []
+        for c in comentarios_filtrados:
+            text_anonymized = c
+            for token_placeholder, regex_pattern in PATRONES_PII.items():
+                text_anonymized = regex_pattern.sub(f"[{token_placeholder}]", text_anonymized)
+            comentarios_regex.append(text_anonymized)
+
+        logger.info("Aplicando desidentificación masiva (Fase 2: NER en batch con spaCy)...")
         comentarios_anonimizados = []
         
-        # Procesamos usando nlp.pipe para optimizar la velocidad del NER
-        # El NER requiere contexto, por lo que no desactivamos "ner" en esta ocasión
-        for doc in nlp.pipe(comentarios_filtrados, batch_size=2000, disable=["parser", "lemmatizer"]):
-            # Como nlp.pipe devuelve objetos Doc, aplicamos la función sobre el texto plano del documento
-            texto_anonimo = anonymize_text_pipeline(doc.text)
-            comentarios_anonimizados.append(texto_anonimo)
+        # Procesamos usando nlp.pipe de manera eficiente en batch (NER activo, parser y lemmatizer desactivados)
+        for doc in nlp.pipe(comentarios_regex, batch_size=2000, disable=["parser", "lemmatizer"]):
+            text_anonymized = doc.text
+            # Recorremos las entidades PER detectadas de atrás hacia adelante para no alterar los índices de caracteres
+            for ent in sorted(doc.ents, key=lambda e: e.start_char, reverse=True):
+                if ent.label_ == "PER":
+                    text_anonymized = text_anonymized[:ent.start_char] + "[PERSONA]" + text_anonymized[ent.end_char:]
+            comentarios_anonimizados.append(text_anonymized)
 
         # Contamos cuántas sustituciones aproximadas se hicieron para nuestro reporte técnico
         total_anonimos = sum(1 for c in comentarios_anonimizados if "[" in c and "]" in c)
