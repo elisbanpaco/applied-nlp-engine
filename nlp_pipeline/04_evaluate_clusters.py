@@ -105,42 +105,57 @@ def save_metrics(metrics: dict, filename: str = "metrics.json"):
 
 if __name__ == "__main__":
     try:
-        # =====================================================================
-        # PASO 1: IMPORTA TUS FUNCIONES REALES AQUÍ
-        # Reemplaza 'api.mi_motor' con el nombre real de tu archivo en api/
-        # =====================================================================
-        # Ejemplo: from api.processor import vectorize_texts, cluster_texts
-        
+
         logger.info("Cargando el dataset real...")
         # =====================================================================
-        # PASO 2: CARGA TU DATASET
-        # Asegúrate de poner la ruta correcta a tus 238,781 comentarios.
-        # Te sugiero usar nrows=5000 primero para probar que todo funcione rápido.
+        # CARGA DEL DATASET
         # =====================================================================
         DATASET_PATH = PROJECT_ROOT / "api/data" / "REP_COMENTARIO2.csv" 
         
 
-        # Leemos el archivo indicando que NO hay cabecera y nombrando las columnas
-        df = pd.read_csv(
-            DATASET_PATH, 
-            sep=';',              
-            on_bad_lines='skip',  
-            engine='python',      
-            encoding='utf-8',
-            header=None,                              # ¡NUEVO! Le decimos que no hay cabecera
-            names=['origen', 'comentario']            # ¡NUEVO! Bautizamos las columnas
-        )
-        
-        # Ahora sí, extraemos la columna que acabamos de nombrar como 'comentario'
-        comentarios = df['comentario'].dropna().astype(str).tolist()
+        # Carga del corpus reconstruyendo saltos de línea huérfanos (Asegura paridad y robustez)
+        comentarios_brutos = []
+        comentario_actual = ""
+        with open(DATASET_PATH, 'r', encoding='utf-8', errors='ignore') as f:
+            for linea in f:
+                linea = linea.strip()
+                if not linea:
+                    continue
+                if ';' in linea:
+                    if comentario_actual:
+                        c_limpio = comentario_actual.strip()
+                        if c_limpio.startswith('"') and c_limpio.endswith('"'):
+                            c_limpio = c_limpio[1:-1].strip()
+                        comentarios_brutos.append(c_limpio)
+                    partes = linea.split(';', 1)
+                    comentario_actual = partes[1].strip() if len(partes) > 1 else ""
+                else:
+                    comentario_actual += " " + linea
+
+        if comentario_actual:
+            c_limpio = comentario_actual.strip()
+            if c_limpio.startswith('"') and c_limpio.endswith('"'):
+                c_limpio = c_limpio[1:-1].strip()
+            comentarios_brutos.append(c_limpio)
+
+        df = pd.DataFrame({"comentario": comentarios_brutos})
+        comentarios_unicos = df["comentario"].dropna().astype(str).unique().tolist()
+        comentarios = [c for c in comentarios_unicos if len(c.split()) > 1]
+
+        logger.info(f"Total comentarios listos para evaluación (únicos y válidos): {len(comentarios)}")
 
         logger.info("Vectorizando textos y aplicando clustering (Llamando al motor real)...")
 
         matriz_caracteristicas, textos_procesados = vectorize_texts(comentarios)
-        logger.info("Fase A: Extrayendo macro-representantes con MiniBatchKMeans...")
-        kmeans = MiniBatchKMeans(n_clusters=500, random_state=42, batch_size=2048, n_init='auto')
+        
+        # Normalización L2 (Esencial para alinear la optimización euclidiana de KMeans con la distancia coseno)
+        from sklearn.preprocessing import normalize
+        matriz_caracteristicas = normalize(matriz_caracteristicas, norm='l2', axis=1)
+
+        logger.info("Fase A: Extrayendo macro-representantes con MiniBatchKMeans (k=127)...")
+        kmeans = MiniBatchKMeans(n_clusters=127, random_state=42, batch_size=2048, n_init='auto')
         kmeans.fit(matriz_caracteristicas)
-        centroides = kmeans.cluster_centers_  # Shape: (500, 300)
+        centroides = kmeans.cluster_centers_  # Shape: (127, 300)
 
         # 2. Paso jerárquico: Construir el linkage real de tu motor
         logger.info("Fase B: Construyendo linkage jerárquico real (Coseno)...")
@@ -149,8 +164,7 @@ if __name__ == "__main__":
         matriz_linkage = fastcluster.linkage(distancias_condensadas, method='average')
 
         # 3. Cortar el árbol en 'T' clusters para poder evaluarlo cuantitativamente
-        # Vamos a simular que queremos evaluar cómo se comporta si extraemos 50 grupos del árbol
-        n_cortes_evaluacion = 50 
+        n_cortes_evaluacion = 30 
         etiquetas_jerarquicas = fcluster(matriz_linkage, t=n_cortes_evaluacion, criterion='maxclust')
 
         # 4. Evaluación formal: Evaluamos los centroides agrupados por el árbol jerárquico
