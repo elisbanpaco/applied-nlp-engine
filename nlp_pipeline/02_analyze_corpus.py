@@ -45,7 +45,10 @@ def analyze_corpus_advanced(texts: list) -> dict:
             total_tokens += 1
             tokens_informativos_en_doc += 1
             
-            if token.is_oov:
+            # Un token es verdaderamente OOV si ni su forma original ni su versión en minúsculas tienen vector en el vocabulario
+            # Esto evita falsos positivos debido a capitalizaciones mixtas del usuario (p.ej., 'mUY', 'EXcelente')
+            es_oov = token.is_oov and not nlp.vocab.has_vector(token.text.lower())
+            if es_oov:
                 oov_tokens += 1
                 oov_counter[token.text.lower()] += 1
         
