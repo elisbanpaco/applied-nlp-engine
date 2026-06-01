@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Applied NLP Engine — Frontend
 
-## Getting Started
+![Next.js](https://img.shields.io/badge/Next.js-16.2-000?logo=next.js)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss)
+![Plotly](https://img.shields.io/badge/Plotly.js-3.5-3F4F75?logo=plotly)
 
-First, run the development server:
+Next.js 16 frontend for the Applied NLP Engine — text similarity comparison and interactive dendrogram visualization of Spanish text clusters.
+
+## Pages
+
+| Page | Path | Description |
+|------|------|-------------|
+| Landing | `/` | Futuristic system dashboard with engine status |
+| Lexical Matcher | `/lexicalmatcher` | Compare two texts using Cosine or Jaccard similarity |
+| Dendrogram | `/dendrograma` | Interactive hierarchical clustering visualization |
+
+## Tech Stack
+
+| Package | Purpose |
+|---------|---------|
+| Next.js 16 | React framework |
+| React 19 | UI components |
+| Plotly.js 3.5 | Interactive dendrogram rendering |
+| Lucide React | Icon library |
+| Tailwind CSS 4 | Utility-first styling |
+
+## Quick Start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+cd client
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) — the API must be running on `http://localhost:8000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment Variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create a `.env` file in `client/`:
 
-## Learn More
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `NEXT_PUBLIC_API_URL` | Backend API base URL | `http://localhost:8000` |
 
-To learn more about Next.js, take a look at the following resources:
+## Build
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+pnpm build
+pnpm start
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project Structure
 
-## Deploy on Vercel
+```
+client/
+├── src/
+│   ├── app/
+│   │   ├── page.tsx                 # Landing page
+│   │   ├── layout.tsx               # Root layout (Navbar + Footer)
+│   │   ├── globals.css              # Global Tailwind styles
+│   │   ├── lexicalmatcher/page.tsx   # Text comparison tool
+│   │   └── dendrograma/page.tsx     # Clustering visualization
+│   └── components/
+│       ├── Navbar.tsx
+│       └── Footer.tsx
+├── public/
+├── package.json
+├── next.config.ts
+└── tailwind.config.ts
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT — See [../LICENSE](../LICENSE)
