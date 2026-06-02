@@ -44,18 +44,18 @@ def plot_metrics():
     line2 = ax2.plot(k_values, silhouette, color=color2, marker='s', markersize=8, linestyle='--', linewidth=2, label='Silhouette Score')
     ax2.tick_params(axis='y', labelcolor=color2)
 
-    # 3. Anotación Científica del Óptimo Matemático (k = 127)
-    # Buscamos dinámicamente las coordenadas del pico de Silhouette
-    idx_optimo = silhouette.index(max(silhouette))
-    k_optimo = k_values[idx_optimo]
+    # 3. Anotación Científica del Óptimo Seleccionado (k = 127)
+    # Seleccionamos k = 127 como el óptimo de visualización y balance estructural
+    k_optimo = 127
+    idx_optimo = k_values.index(k_optimo)
     sil_optima = silhouette[idx_optimo]
     
     # Dibujamos una línea vertical punteada en el óptimo
     ax1.axvline(x=k_optimo, color='green', linestyle=':', linewidth=1.5, alpha=0.8)
     
-    # Colocamos un cuadro de texto apuntando al máximo local
+    # Colocamos un cuadro de texto apuntando al óptimo
     ax2.annotate(
-        f'Óptimo Semántico\n(k = {k_optimo}, S = {sil_optima:.4f})',
+        f'Óptimo Seleccionado\n(k = {k_optimo}, S = {sil_optima:.4f})',
         xy=(k_optimo, sil_optima),
         xytext=(k_optimo + 15, sil_optima - 0.01),
         arrowprops=dict(facecolor='black', shrink=0.08, width=1, headwidth=6),
@@ -63,9 +63,9 @@ def plot_metrics():
         fontweight='bold',
         bbox=dict(boxstyle="round,pad=0.3", fc="#e1f5fe", ec="#b3e5fc", alpha=0.9)
     )
-
+ 
     # 4. Título, Ejes y Leyendas Unificadas
-    plt.title('Optimización Dinámica de Hiperparámetros en Corpus SUNARP\nAnálisis de Cohesión Espacial e Isometría Semántica (N = 37,937)', fontsize=13, fontweight='bold', pad=20)
+    plt.title('Optimización Dinámica de Hiperparámetros en Corpus SUNARP\nAnálisis de Cohesión Espacial e Isometría Semántica (N = 37,989)', fontsize=13, fontweight='bold', pad=20)
     
     # Asegurar que se muestren los ticks exactos evaluados en el eje X
     ax1.set_xticks(k_values)
