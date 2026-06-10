@@ -99,6 +99,7 @@ export default function DendrogramPage() {
   // Crear las trazas de Plotly para el dendrograma
   const createDendrogramTraces = (treeData: DendrogramNode) => {
     const { icoord, dcoord, labelCoords } = treeToCoords(treeData);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const traces: any[] = [];
 
     // Traza para las líneas del dendrograma
