@@ -44,18 +44,27 @@ Applied NLP Engine is a production-ready NLP system designed for processing, ana
 
 ### Prerequisites
 
-- Python 3.13+
-- Node.js 18+
-- pnpm (recommended)
-- uv (recommended for Python)
+- Docker and Docker Compose
+- Or: Python 3.13+, Node.js 18+, pnpm, uv
 
-### Installation
+### Running the Project (Recommended - Docker)
+
+The easiest way to run the full stack is using Docker Compose:
 
 ```bash
 # Clone the repository
 git clone https://github.com/elisbanpaco/applied-nlp-engine.git
 cd applied-nlp-engine
 
+# Build and start all services
+docker-compose up --build
+```
+
+Access the API docs at `http://localhost:8000/docs` and the frontend at `http://localhost:3000`.
+
+### Running Locally (Manual Setup)
+
+```bash
 # Backend setup (uv recommended)
 cd api
 uv sync
@@ -63,20 +72,14 @@ uv sync
 # Download Spanish models
 python -m spacy download es_core_news_lg
 
+# Terminal 1: Start backend
+uvicorn main:app --reload --port 8000
+
 # Frontend setup
 cd ../client
 pnpm install
-```
-
-### Running the Project
-
-```bash
-# Terminal 1: Start backend
-cd api
-uvicorn main:app --reload --port 8000
 
 # Terminal 2: Start frontend
-cd client
 pnpm dev
 ```
 
@@ -173,6 +176,25 @@ curl "http://localhost:8000/api/v1/clustering/distancia-coseno"
 - **Deduplication**: Eliminating duplicates cleans the data from 262k rows to 38,109 unique comments, drastically reducing computation.
 - **Spanish Lemmatization**: Custom pipeline filtering (excluding stopwords, punctuation, and numbers) ensures precise lexical overlap.
 - **Performance**: High-throughput `nlp.pipe()` with parallel regex anonymization optimizes CPU execution.
+
+## Architecture
+
+```mermaid
+graph TD
+    Client[Next.js Client] -->|HTTP Requests| API[FastAPI Backend]
+    API --> NLP[NLP Pipeline]
+    NLP --> Spacy[spaCy es_core_news_lg]
+    NLP --> Scikit[scikit-learn MiniBatchKMeans]
+    NLP --> FastCluster[fastcluster Hierarchical]
+    API --> Resp[JSON / Plotly Trees]
+```
+
+## Design Decisions & Trade-offs
+
+- **MiniBatchKMeans over DBSCAN/HDBSCAN:** While density-based algorithms don't require an explicit `k`, they struggle with high-dimensional text embeddings. MiniBatchKMeans was chosen for its blazing fast pre-clustering speed on 250k rows, despite requiring a pre-defined macro-cluster limit.
+- **Spherical K-Means:** Regular K-Means uses Euclidean distance, which breaks cosine similarities. By applying L2-normalization before clustering, we approximate Spherical K-Means, keeping the mathematical integrity of word embeddings intact.
+- **Medoid Projection for Jaccard:** Jaccard similarity operates on sets, not dense vectors. By forcing the cluster centers back to the nearest real document (medoids), we guarantee that all representatives used in the final dendrogram correspond to actual user comments rather than abstract centroid averages.
+- **FastAPI + Async:** While the heavy ML calculations are currently synchronous, the async framework allows for scaling up with background workers (Celery) in the future without blocking concurrent user traffic.
 
 ## Frontend Pages
 

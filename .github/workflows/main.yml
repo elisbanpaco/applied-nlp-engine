@@ -1,0 +1,55 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install pnpm
+      uses: pnpm/action-setup@v3
+      with:
+        version: 9
+
+    - name: Client - Install dependencies
+      working-directory: ./client
+      run: pnpm install --frozen-lockfile
+
+    - name: Client - Lint
+      working-directory: ./client
+      run: pnpm lint
+
+    - name: Client - Build
+      working-directory: ./client
+      run: pnpm build
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        enable-cache: true
+
+    - name: API - Install dependencies
+      working-directory: ./api
+      run: uv sync
+
+    # Agregaremos pytest cuando la suite de tests esté más madura
+    # - name: API - Test
+    #   working-directory: ./api
+    #   run: uv run pytest
